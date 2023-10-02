@@ -17,7 +17,7 @@ app.get('/', (req, res) => {
     res.send('Hello World');
 });
 
-app.use('/', require('./routes/user'))
+app.use('/user', require('./routes/user'))
 app.use('/admin', require('./routes/admin'))
 
 connectDB();
