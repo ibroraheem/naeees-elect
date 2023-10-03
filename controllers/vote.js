@@ -111,52 +111,12 @@ const vote = async (req, res) => {
             genSec.votes += 1
             await genSec.save()
         }
-        const ags = await Candidate.findOne({ _id: ballot["assistant general secretary"] })
-        if (ags) {
-            ags.votes += 1
-            await ags.save()
-        }
         const sportSec = await Candidate.findOne({ _id: ballot["sports secretary"] })
         if (sportSec) {
             sportSec.votes += 1
             await sportSec.save()
         }
-        const welfare = await Candidate.findOne({ _id: ballot["welfare secretary"] })
-        if (welfare) {
-            welfare.votes += 1
-            await welfare.save()
-        }
-        const finSec = await Candidate.findOne({ _id: ballot["financial secretary"] })
-        if (finSec) {
-            finSec.votes += 1
-            await finSec.save()
-        }
-        const socialSec = await Candidate.findOne({ _id: ballot["social secretary"] })
-        if (socialSec) {
-            socialSec.votes += 1
-            await socialSec.save()
-        }
-        const pro = await Candidate.findOne({ _id: ballot.pro })
-        if (pro) {
-            pro.votes += 1
-            await pro.save()
-        }
-        const technical = await Candidate.findOne({ _id: ballot["technical director"] })
-        if (technical) {
-            technical.votes += 1
-    
-            await technical.save()
-        }
-        const src = await Candidate.find({ _id: ballot.src })
-        if (src) {
-            ballot.src.forEach(async (srcId) => {
-                const src = await Candidate.findOne({ _id: srcId })
-                if (src) {
-                    src.votes += 1
-                    await src.save()
-                }
-            })
-        }
+
         user.hasVoted = true
         await user.save()
         const newToken = jwt.sign({ id: user._id, matric: user.matric, voted: user.voted, department: user.department, level: user.level, isVerified: user.isVerified, role: user.role, isAccredited: user.isAccredited, hasVoted: user.hasVoted }, process.env.JWT_SECRET, { expiresIn: '1h' })
