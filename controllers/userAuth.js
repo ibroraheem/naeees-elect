@@ -19,7 +19,25 @@ const register = async (req, res) => {
         const isMatricValid = matric.includes('30G') || matric.includes('30g')
         if (!isMatricValid) return res.status(400).json({ message: 'Invalid matric number' })
         const dept = matric.includes('30gc')
-        if(!dept) return res.status(400).json({ message: 'You be OGBA! shay you dey electrical'})
+        if (!dept && matric.includes('30gb')) {
+            return res.status(400).json({ message: 'Weyray omo CIVIL! Shay una get the type?' })
+         } else if (!dept && matric.includes('30ga')) {
+            return res.status(400).json({ message: 'AGbe buruku! Olaitan run am?' })
+        } else if (!dept && matric.includes('30gr')) {
+            return res.status(400).json({ message: 'Tenant don dey feel like landlord! CPE get out!' })
+        } else if (!dept && matric.includes('30gq')) {
+            return res.status(400).json({ message: 'You dey whine? Water na department?' })
+        } else if (!dept && matric.includes('30gd')) {
+            return res.status(400).json({ message: 'MECHO! dem dey find you for workshop!' })
+        } else if (!dept && matric.includes('30gn')) {
+            return res.status(400).json({ message: 'Educated welder! Who call you?' })
+        } else if (!dept && matric.includes('30gt')) {
+            return res.status(400).json({ message: 'Samll yansh dey shake o! You won vote too? Go sell Tamarind juice' })
+        } else if (!dept && matric.includes('30gp')) {
+            return res.status(400).json({ message: "Na why Electronics dey show una shege be this because wetin concern you with ELE?" })
+        } else if(!dept && matric.includes('30gm')) {
+            return res.status(400).json({ message: "If no be say you be tiff, wetin concern CHE with ELE" })
+        }
         const email = matric.replace('/', '-') + '@students.unilorin.edu.ng'
         const newUser = new User({
             matric: matric.toLowerCase(),
@@ -285,4 +303,4 @@ const checkABE = async (req, res) => {
 }
 
 
-    module.exports = { register, login, verify, resendOTP, forgotPassword, resetPassword, update, registerA, checkABE }
+module.exports = { register, login, verify, resendOTP, forgotPassword, resetPassword, update, registerA, checkABE }
