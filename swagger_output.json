@@ -21,7 +21,7 @@
         }
       }
     },
-    "/register": {
+    "/user/register": {
       "post": {
         "description": "",
         "parameters": [
@@ -63,7 +63,7 @@
         }
       }
     },
-    "/login": {
+    "/user/login": {
       "post": {
         "description": "",
         "parameters": [
@@ -96,7 +96,7 @@
         }
       }
     },
-    "/verify": {
+    "/user/verify": {
       "post": {
         "description": "",
         "parameters": [
@@ -131,7 +131,7 @@
         }
       }
     },
-    "/resend-otp": {
+    "/user/resend-otp": {
       "post": {
         "description": "",
         "parameters": [
@@ -154,7 +154,7 @@
         }
       }
     },
-    "/forgot-password": {
+    "/user/forgot-password": {
       "post": {
         "description": "",
         "parameters": [
@@ -184,7 +184,7 @@
         }
       }
     },
-    "/reset-password": {
+    "/user/reset-password": {
       "post": {
         "description": "",
         "parameters": [
@@ -217,7 +217,7 @@
         }
       }
     },
-    "/generate-voting-otp": {
+    "/user/generate-voting-otp": {
       "post": {
         "description": "",
         "parameters": [
@@ -240,7 +240,7 @@
         }
       }
     },
-    "/verify-voting-otp": {
+    "/user/verify-voting-otp": {
       "post": {
         "description": "",
         "parameters": [
@@ -275,7 +275,7 @@
         }
       }
     },
-    "/candidates": {
+    "/user/candidates": {
       "get": {
         "description": "",
         "parameters": [
@@ -298,7 +298,7 @@
         }
       }
     },
-    "/vote": {
+    "/user/vote": {
       "post": {
         "description": "",
         "parameters": [
@@ -333,7 +333,7 @@
         }
       }
     },
-    "/update": {
+    "/user/update": {
       "post": {
         "description": "",
         "parameters": [
@@ -363,7 +363,7 @@
         }
       }
     },
-    "/reg": {
+    "/user/reg": {
       "post": {
         "description": "",
         "parameters": [
@@ -426,7 +426,7 @@
         }
       }
     },
-    "/abe": {
+    "/user/abe": {
       "post": {
         "description": "",
         "responses": {

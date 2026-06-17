@@ -3,7 +3,10 @@ const app = express();
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const connectDB = require('./config/db');
-bodyParser.urlencoded({ extended: false });
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger_output.json');
+
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors(
     {
@@ -16,7 +19,7 @@ app.use(cors(
 app.get('/', (req, res) => {
     res.send('Hello World');
 });
-
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/user', require('./routes/user'))
 app.use('/admin', require('./routes/admin'))
 
