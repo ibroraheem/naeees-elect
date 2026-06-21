@@ -10,9 +10,16 @@ function getToken(req) {
 }
 
 function verifyToken(token) {
+    const secret = process.env.JWT_SECRET
+    if (!secret) {
+        console.error('JWT_SECRET is not configured')
+        return null
+    }
+
     try {
-        return jwt.verify(token, process.env.JWT_SECRET)
+        return jwt.verify(token, secret)
     } catch (err) {
+        console.error('JWT verification failed:', err.message)
         return null
     }
 }
@@ -26,7 +33,7 @@ async function authenticate(req, res) {
 
     const decoded = verifyToken(token)
     if (!decoded) {
-        res.status(401).json({ message: 'Invalid token' })
+        res.status(401).json({ message: 'Invalid token or server JWT_SECRET misconfigured' })
         return null
     }
 
