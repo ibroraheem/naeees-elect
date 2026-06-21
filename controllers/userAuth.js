@@ -1,89 +1,24 @@
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-
-const nodemailer = require('nodemailer')
 const User = require('../models/user')
 require('dotenv').config()
 
 
-const register = async (req, res) => {
+const login = async (req, res) => {
     try {
-        const { surname, firstName, level, password } = req.body
-        let matric = req.body.matric
-        matric = matric.toLowerCase()
-        const user = await User.findOne({ matric })
-        if (user) return res.status(400).json({ message: 'User already exists' })
-        const hashedPassword = await bcrypt.hash(password, 10)
-        const otp = Math.floor(100000 + Math.random() * 900000).toString()
-        const otpExpires = Date.now() + 3600000
-        const isMatricValid = matric.includes('30G') || matric.includes('30g')
-        if (!isMatricValid) return res.status(400).json({ message: 'Invalid matric number' })
-        const dept = matric.includes('30gc')
-        if (!dept && matric.includes('30gb')) {
-            return res.status(400).json({ message: 'Weyray omo CIVIL! Shay una get the type?' })
-         } else if (!dept && matric.includes('30ga')) {
-            return res.status(400).json({ message: 'AGbe buruku! Olaitan run am?' })
-        } else if (!dept && matric.includes('30gr')) {
-            return res.status(400).json({ message: 'Tenant don dey feel like landlord! CPE get out!' })
-        } else if (!dept && matric.includes('30gq')) {
-            return res.status(400).json({ message: 'You dey whine? Water na department?' })
-        } else if (!dept && matric.includes('30gd')) {
-            return res.status(400).json({ message: 'MECHO! dem dey find you for workshop!' })
-        } else if (!dept && matric.includes('30gn')) {
-            return res.status(400).json({ message: 'Educated welder! Who call you?' })
-        } else if (!dept && matric.includes('30gt')) {
-            return res.status(400).json({ message: 'Samll yansh dey shake o! You won vote too? Go sell Tamarind juice' })
-        } else if (!dept && matric.includes('30gp')) {
-            return res.status(400).json({ message: "Na why Electronics dey show una shege be this because wetin concern you with ELE?" })
-        } else if(!dept && matric.includes('30gm')) {
-            return res.status(400).json({ message: "If no be say you be tiff, wetin concern CHE with ELE" })
-        }
-        const email = matric.replace('/', '-') + '@students.unilorin.edu.ng'
-        const newUser = new User({
-            matric: matric.toLowerCase(),
-            surname,
-            firstName,
-            level,
-            otp,
-            email,
-            otpExpires,
-            password: hashedPassword
-        })
-        await newUser.save()
-        const token = jwt.sign({ id: newUser._id, matric: newUser.matric, voted: newUser.voted, department: newUser.department, level: newUser.level, isVerified: newUser.isVerified, role: newUser.role, isAccredited: newUser.isAccredited }, process.env.JWT_SECRET, { expiresIn: '1h' })
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            secure: true,
-            auth: {
-                user: process.env.EMAIL,
-                pass: process.env.PASSWORD
-            },
-        })
-        const mailOptions = {
-            from: process.env.EMAIL,
-            to: email,
-            subject: 'Account Verification',
-            html: `<h1>Hi ${firstName},</h1><p><strong>Your verification code is ${otp}</strong></p>
-            <p>It expires in 1 hour</p>
-            <p>Regards,</p>
-            <p>NISEC 2023</p>`
-        }
-        transporter.sendMail(mailOptions, (err, info) => {
-            if (err) {
-                console.log(err)
-                return res.status(500).json({ message: err.message })
-            } else {
-                console.log(info)
-                res.status(201).json({ message: 'User created successfully', user: newUser, token })
-            }
-        })
+        const { matric, password } = req.body
+        const user = await User.findOne({ matric: matric.toLowerCase() })
+        if (!user) return res.status(400).json({ message: 'User does not exist' })
+        const isMatch = await bcrypt.compare(password, user.password)
+        if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' })
+        const token = jwt.sign({ id: user._id, matric: user.matric, voted: user.voted, department: user.department, level: user.level, isVerified: user.isVerified, role: user.role, isAccredited: user.isAccredited }, process.env.JWT_SECRET)
+        res.status(200).json({ message: "Login Successful", token })
     } catch (error) {
         console.log(error)
         res.status(500).json({ message: error.message })
     }
 }
 
-const login = async (req, res) => {
     try {
         const { matric, password } = req.body
         const user = await User.findOne({ matric: matric.toLowerCase() })
