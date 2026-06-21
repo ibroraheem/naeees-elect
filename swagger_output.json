@@ -5,7 +5,7 @@
     "title": "REST API",
     "description": ""
   },
-  "host": "https://naeees-elect.onrender.com/",
+  "host": "https://naeees-elect.onrender.com",
   "basePath": "/",
   "schemes": [
     "http"
