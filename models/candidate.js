@@ -1,13 +1,7 @@
 const mongoose = require('mongoose')
 
 const candidateSchema = new mongoose.Schema({
-    surname: {
-        type: String,
-        required: true,
-        min: 3,
-        max: 255
-    },
-    firstName: {
+    name: {
         type: String,
         required: true,
         min: 3,

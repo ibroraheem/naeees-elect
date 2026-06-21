@@ -27,7 +27,7 @@ const generateOtp = async (req, res) => {
             from: process.env.EMAIL,
             to: user.email,
             subject: 'Voting OTP',
-            html: `<p>Hi ${user.firstName},</p></p><p><strong>Your voting OTP is ${votingOtp}</strong></p>`
+            html: `<p>Hi ${user.name},</p></p><p><strong>Your voting OTP is ${votingOtp}</strong></p>`
         }
         transporter.sendMail(mailOptions, (err, info) => {
             if (err) {
