@@ -57,6 +57,10 @@ const generateOtp = async (req, res) => {
         user.votingOtpExpires = votingOtpExpires
         await user.save()
 
+        if (!process.env.EMAIL || !process.env.PASSWORD) {
+            return res.status(500).json({ message: 'Email service is not configured. OTP generated but could not be sent.' })
+        }
+
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             secure: true,

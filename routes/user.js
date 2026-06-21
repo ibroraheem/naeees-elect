@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const { login, update } = require('../controllers/userAuth')
-const {generateOtp, verifyVotingOtp, vote, getCandidates} = require('../controllers/vote')
+const { generateOtp, verifyVotingOtp, vote, getCandidates } = require('../controllers/vote')
 
 router.post('/login', login)
 router.post('/generate-voting-otp', generateOtp)
