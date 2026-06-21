@@ -602,10 +602,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "surname": {
-                  "example": "any"
-                },
-                "firstName": {
+                "name": {
                   "example": "any"
                 },
                 "matric": {
