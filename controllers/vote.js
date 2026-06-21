@@ -1,7 +1,7 @@
 const User = require('../models/user')
 const Candidate = require('../models/candidate')
 const jwt = require('jsonwebtoken')
-const nodemailer = require('nodemailer')
+const { sendOtp } = require('../services/emailService')
 
 function getToken(req) {
     const authHeader = req.headers.authorization || req.headers.Authorization
@@ -57,34 +57,15 @@ const generateOtp = async (req, res) => {
         user.votingOtpExpires = votingOtpExpires
         await user.save()
 
-        if (!process.env.EMAIL || !process.env.PASSWORD) {
-            return res.status(500).json({ message: 'Email service is not configured. OTP generated but could not be sent.' })
+        const html = `<p>Hi ${user.name},</p><p><strong>Your voting OTP is ${votingOtp}</strong></p>`
+
+        try {
+            const result = await sendOtp(user.email, 'Voting OTP', html)
+            res.status(200).json({ message: `OTP sent successfully via ${result.service}` })
+        } catch (emailError) {
+            console.error('[OTP] Email service failed:', emailError.message)
+            res.status(500).json({ message: 'Failed to send OTP. Please try again.' })
         }
-
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            secure: true,
-            auth: {
-                user: process.env.EMAIL,
-                pass: process.env.PASSWORD
-            }
-        })
-
-        const mailOptions = {
-            from: process.env.EMAIL,
-            to: user.email,
-            subject: 'Voting OTP',
-            html: `<p>Hi ${user.name},</p><p><strong>Your voting OTP is ${votingOtp}</strong></p>`
-        }
-
-        transporter.sendMail(mailOptions, (err, info) => {
-            if (err) {
-                console.log(err)
-                return res.status(500).json({ message: err.message })
-            }
-            console.log(info)
-            res.status(200).json({ message: 'OTP sent successfully' })
-        })
     } catch (error) {
         console.log(error)
         res.status(500).json({ message: error.message })
