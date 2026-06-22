@@ -61,24 +61,12 @@ const addCandidate = async (req, res) => {
         if (!admin) return res.status(400).json({ message: 'Admin does not exist' })
         const candidate = await Candidate.findOne({ nickname })
         if (candidate) return res.status(400).json({ message: 'Candidate already exists' })
-        const dept = matric.includes('30ga') ? 'ABE' :
-        matric.includes('30gb') ? 'CVE' :
-            matric.includes('30gc') ? 'ELE' :
-                matric.includes('30gd') ? 'MEE' :
-                    matric.includes('30gm') ? 'CHE' :
-                        matric.includes('30gn') ? 'MME' :
-                            matric.includes('30gq') ? 'WRE' :
-                                matric.includes('30gp') ? 'BME' :
-                                    matric.includes('30gt') ? 'FBE' :
-                                        'CPE';
         const newCandidate = new Candidate({
             name,
-            department: dept,
-            level,
+            department: 'ELE',
             nickname,
             post,
             photo,
-            matric,
             otherName
         })
         await newCandidate.save()
