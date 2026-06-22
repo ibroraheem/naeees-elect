@@ -8,9 +8,6 @@ const candidateSchema = new mongoose.Schema(
       min: 3,
       max: 255,
     },
-    otherName: {
-      type: String,
-    },
     photo: {
       type: String,
       required: true,
