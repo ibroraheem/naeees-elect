@@ -1,91 +1,71 @@
-const axios = require('axios');
+const nodemailer = require('nodemailer');
 
-const requiredEnvironmentVariables = [
-  'GMAIL_CLIENT_ID',
-  'GMAIL_CLIENT_SECRET',
-  'GMAIL_REFRESH_TOKEN',
-  'GMAIL_USER'
-];
+const requiredEnvironmentVariables = ['ZOHO_USER', 'ZOHO_APP_PASSWORD'];
 
-function validateEmailConfiguration() {
+function getEmailConfiguration() {
   const missing = requiredEnvironmentVariables.filter((name) => !process.env[name]);
 
   if (missing.length) {
-    throw new Error(`Gmail API configuration is missing: ${missing.join(', ')}`);
-  }
-}
-
-async function getAccessToken() {
-  const body = new URLSearchParams({
-    client_id: process.env.GMAIL_CLIENT_ID,
-    client_secret: process.env.GMAIL_CLIENT_SECRET,
-    refresh_token: process.env.GMAIL_REFRESH_TOKEN,
-    grant_type: 'refresh_token'
-  });
-
-  const response = await axios.post(
-    'https://oauth2.googleapis.com/token',
-    body.toString(),
-    {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      timeout: 10000
-    }
-  );
-
-  return response.data.access_token;
-}
-
-function encodeHeader(value) {
-  return `=?UTF-8?B?${Buffer.from(value).toString('base64')}?=`;
-}
-
-function buildRawEmail(to, subject, html) {
-  if (/\r|\n/.test(to)) {
-    throw new Error('Invalid recipient email address');
+    throw new Error(`Zoho SMTP configuration is missing: ${missing.join(', ')}`);
   }
 
-  const htmlBase64 = Buffer.from(html)
-    .toString('base64')
-    .match(/.{1,76}/g)
-    .join('\r\n');
-  const lines = [
-    `From: NAEEES Elections <${process.env.GMAIL_USER}>`,
-    `To: ${to}`,
-    `Subject: ${encodeHeader(subject)}`,
-    'MIME-Version: 1.0',
-    'Content-Type: text/html; charset=UTF-8',
-    'Content-Transfer-Encoding: base64',
-    '',
-    htmlBase64
-  ];
+  const port = Number(process.env.ZOHO_SMTP_PORT || 465);
+  if (!Number.isInteger(port) || port <= 0) {
+    throw new Error('ZOHO_SMTP_PORT must be a valid port number');
+  }
 
-  return Buffer.from(lines.join('\r\n'))
-    .toString('base64url');
+  return {
+    host: process.env.ZOHO_SMTP_HOST || 'smtp.zoho.com',
+    port,
+    secure: process.env.ZOHO_SMTP_SECURE
+      ? process.env.ZOHO_SMTP_SECURE === 'true'
+      : port === 465,
+    user: process.env.ZOHO_USER,
+    password: process.env.ZOHO_APP_PASSWORD,
+    from: process.env.ZOHO_FROM || process.env.ZOHO_USER
+  };
 }
 
 const sendOtp = async (to, subject, html) => {
-  validateEmailConfiguration();
+  const config = getEmailConfiguration();
+  const transporter = nodemailer.createTransport({
+    host: config.host,
+    port: config.port,
+    secure: config.secure,
+    auth: {
+      user: config.user,
+      pass: config.password
+    },
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000
+  });
 
   try {
-    const accessToken = await getAccessToken();
-    const response = await axios.post(
-      'https://gmail.googleapis.com/gmail/v1/users/me/messages/send',
-      { raw: buildRawEmail(to, subject, html) },
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        },
-        timeout: 10000
-      }
-    );
+    const info = await transporter.sendMail({
+      from: `NAEEES Elections <${config.from}>`,
+      to,
+      subject,
+      html
+    });
 
-    return { success: true, service: 'Gmail API', data: response.data };
+    if (!info.accepted.length) {
+      throw new Error(`Zoho rejected the recipient: ${info.rejected.join(', ')}`);
+    }
+
+    return {
+      success: true,
+      service: 'Zoho SMTP',
+      data: { messageId: info.messageId, accepted: info.accepted }
+    };
   } catch (error) {
-    const status = error.response?.status;
-    const details = error.response?.data?.error?.message || error.message;
-    console.error('[Gmail API] Email request failed:', { status, details });
-    throw new Error(`Gmail API request failed${status ? ` (${status})` : ''}: ${details}`);
+    console.error('[Zoho SMTP] Email request failed:', {
+      code: error.code,
+      responseCode: error.responseCode,
+      command: error.command,
+      message: error.message
+    });
+    throw error;
   }
 };
 
